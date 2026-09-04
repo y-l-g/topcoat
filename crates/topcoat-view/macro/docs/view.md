@@ -187,6 +187,27 @@ Ok(view! {
 # }
 ```
 
+A loop is also how views built ahead of time render. One view interpolates in node position like any value, but a collection of views, such as a `Vec<BoxView>`, cannot: a node position holds one view, not a list of them. Loop over the collection and interpolate one view per iteration, and give component calls inside the loop a `key:` as described under Keys:
+
+```rust
+# use topcoat::{Result, view::*};
+# #[component]
+# async fn example() -> Result<impl View> {
+let rows: Vec<BoxView> = vec![
+    view! { <tr>"First"</tr> }.boxed(),
+    view! { <tr>"Second"</tr> }.boxed(),
+];
+
+Ok(view! {
+    <tbody>
+        for row in rows {
+            (row)
+        }
+    </tbody>
+})
+# }
+```
+
 ## `match`
 
 Use `match` to choose markup from patterns. Match arms can also use guards.
@@ -396,6 +417,23 @@ Ok(view! {
 When a value is needed both inside the view and after it, interpolate a clone instead.
 
 A view that captures a reference borrows whatever it points at, so it cannot outlive that data, exactly like an `async move` block. In practice this rarely gets in the way: component props and anything borrowed from the request context stay alive until the render is over, so they are safe to use in a view even when they are references, like a `&str` prop.
+
+A view returned from a function may borrow the request context it was built against, since the context outlives the view; it can never borrow a local of the function itself. A template that mentions a borrow of a local variable, such as a `&str` alias or an iterator held in a variable, moves that borrow into the view, and returning the view then fails to compile because the borrow outlives the local. Mention the owned value instead, or clone it into the view:
+
+```rust
+# use topcoat::{Result, context::Cx, view::*};
+# #[component]
+# async fn page(cx: &Cx) -> Result<impl View> {
+let title = String::from("Dashboard");
+
+// Does not compile: the view captures the borrow, and outlives the local:
+// let label: &str = &title;
+// Ok(view! { <h1>(label)</h1> })
+
+// The view owns the value, so it can be returned:
+Ok(view! { <h1>(title)</h1> })
+# }
+```
 
 # Concurrent Rendering
 
