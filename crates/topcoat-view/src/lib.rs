@@ -20,6 +20,9 @@ pub use css::*;
 pub use format::*;
 pub use hoist::*;
 pub use html::*;
+// A stable path for the future-of-a-view adapter the generated code
+// reaches through `internal`.
+pub use internal::ThenView;
 pub use props::*;
 pub use region::*;
 pub use string::*;

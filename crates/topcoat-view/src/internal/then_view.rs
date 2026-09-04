@@ -14,6 +14,27 @@ pin_project! {
     /// The view awaits the future first and then polls the view it resolved
     /// to in place. A component invocation becomes one: the component's
     /// body is a future returning its view.
+    ///
+    /// Wrapping a fallible async body turns the body into a view; the
+    /// body's error surfaces when the view renders. This is how a view is
+    /// built by hand when the code around it is not a component:
+    ///
+    /// ```rust
+    /// use topcoat::{context::Cx, view::{BoxView, ThenView, view}};
+    ///
+    /// // The title arrives after the view is built; the view resolves it
+    /// // when it renders.
+    /// fn page(cx: &Cx) -> BoxView<'_> {
+    ///     Box::pin(ThenView::new(async move {
+    ///         let title = fetch_title().await;
+    ///         Ok(view! { cx => <h1>(title)</h1> })
+    ///     }))
+    /// }
+    ///
+    /// async fn fetch_title() -> String {
+    ///     String::from("Dashboard")
+    /// }
+    /// ```
     #[project = ThenViewProj]
     pub enum ThenView<F, V> {
         Future { #[pin] future: F },
