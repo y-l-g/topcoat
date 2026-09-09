@@ -24,7 +24,7 @@ use crate::{PartsWriter, PromotedStr, StaticStr, Unescaped, buffer::ViewHandle};
 #[diagnostic::on_unimplemented(
     message = "`{Self}` cannot be rendered as node content",
     label = "cannot be rendered as node content",
-    note = "values in a node position must implement `NodeViewParts`: text, numbers, and other renderable parts",
+    note = "values in a node position must implement `NodeViewParts`",
     note = "a view value can fill a node position once boxed with `.boxed()`",
     note = "render a list of views with a `for` loop inside the template, one interpolation per iteration"
 )]

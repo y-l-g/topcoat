@@ -14,7 +14,7 @@ use crate::{
 #[diagnostic::on_unimplemented(
     message = "`{Self}` cannot fill a node position in a `view!` template",
     label = "cannot fill this node position",
-    note = "a node position takes renderable parts, like text and numbers, or a view the template can drive",
+    note = "a node position takes renderable parts or a view the template can drive",
     note = "a value known only as `impl View` must be boxed with `.boxed()` before it can be interpolated",
     note = "render a list of views with a `for` loop inside the template, one interpolation per iteration"
 )]

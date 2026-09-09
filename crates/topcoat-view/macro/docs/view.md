@@ -187,13 +187,13 @@ Ok(view! {
 # }
 ```
 
-A loop is also how views built ahead of time render. One view interpolates in node position like any value, but a collection of views, such as a `Vec<BoxView>`, cannot: a node position holds one view, not a list of them. Loop over the collection and interpolate one view per iteration, and give component calls inside the loop a `key:` as described under Keys:
+A loop is also how views built ahead of time render. One view interpolates in node position like any value, but a collection of views, such as a `Vec<BoxView<'_>>`, cannot: a node position holds one view, not a list of them. Loop over the collection and interpolate one view per iteration, giving the loop a `#[key(...)]` key when its body invokes components (see Keys below):
 
 ```rust
 # use topcoat::{Result, view::*};
 # #[component]
 # async fn example() -> Result<impl View> {
-let rows: Vec<BoxView> = vec![
+let rows: Vec<BoxView<'_>> = vec![
     view! { <tr>"First"</tr> }.boxed(),
     view! { <tr>"Second"</tr> }.boxed(),
 ];
