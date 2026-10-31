@@ -9,6 +9,7 @@ use topcoat_core_grammar::paths::{
     topcoat_context, topcoat_error, topcoat_inventory, topcoat_router, topcoat_runtime,
     topcoat_view, topcoat_view_macro,
 };
+use topcoat_runtime::ROUTE_PREFIX;
 
 use crate::{
     common::EndpointPath,
@@ -16,7 +17,9 @@ use crate::{
 };
 
 /// The path prefix for shards without an explicit path.
-const SHARD_ROUTE_PREFIX: &str = "/_topcoat/runtime/shards";
+fn route_prefix() -> String {
+    format!("{ROUTE_PREFIX}/shards")
+}
 
 /// A parsed `#[shard] async fn ...`.
 pub struct Shard {
@@ -121,7 +124,7 @@ impl ToTokens for Shard {
         // The scope stays a view rather than settling the handler's content,
         // so a live shard body keeps streaming its updates through the
         // enclosing content.
-        let path = EndpointPath::resolve(self.attr.path.as_ref(), SHARD_ROUTE_PREFIX, ident);
+        let path = EndpointPath::resolve(self.attr.path.as_ref(), &route_prefix(), ident);
         let url = EndpointPath::url(&path);
         let docs = item.attrs.iter().filter(|attr| attr.path().is_ident("doc"));
         let marker = quote! {
@@ -282,7 +285,7 @@ mod tests {
         .unwrap();
         let out = shard.to_token_stream().to_string();
         assert!(out.contains(r#""/search""#), "{out}");
-        assert!(!out.contains(SHARD_ROUTE_PREFIX), "{out}");
+        assert!(!out.contains(&route_prefix()), "{out}");
     }
 
     #[test]
@@ -295,7 +298,7 @@ mod tests {
         )
         .unwrap();
         let out = shard.to_token_stream().to_string();
-        assert!(out.contains(SHARD_ROUTE_PREFIX), "{out}");
+        assert!(out.contains(&route_prefix()), "{out}");
     }
 
     #[test]

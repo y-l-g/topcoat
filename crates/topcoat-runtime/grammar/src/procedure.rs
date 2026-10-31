@@ -13,11 +13,14 @@ use topcoat_core_grammar::{
         topcoat_runtime,
     },
 };
+use topcoat_runtime::ROUTE_PREFIX;
 
 use crate::common::EndpointPath;
 
 /// The path prefix for procedures without an explicit path.
-const PROCEDURE_ROUTE_PREFIX: &str = "/_topcoat/runtime/procedures";
+fn route_prefix() -> String {
+    format!("{ROUTE_PREFIX}/procedures")
+}
 
 /// The optional endpoint path in `#[procedure("/api/double")]`.
 pub struct ProcedureAttr {
@@ -167,7 +170,7 @@ impl ToTokens for Procedure {
 
         // The route serving calls at the endpoint's path, dispatching them to
         // the bridge.
-        let path = EndpointPath::resolve(self.0.path.as_ref(), PROCEDURE_ROUTE_PREFIX, ident);
+        let path = EndpointPath::resolve(self.0.path.as_ref(), &route_prefix(), ident);
         let url = EndpointPath::url(&path);
         let route = quote! {
             impl #topcoat_router::Route for #ident {
@@ -300,7 +303,7 @@ mod tests {
         .unwrap();
         let out = procedure.to_token_stream().to_string();
         assert!(out.contains(r#""/api/double""#), "{out}");
-        assert!(!out.contains(PROCEDURE_ROUTE_PREFIX), "{out}");
+        assert!(!out.contains(&route_prefix()), "{out}");
     }
 
     #[test]
@@ -311,7 +314,7 @@ mod tests {
         )
         .unwrap();
         let out = procedure.to_token_stream().to_string();
-        assert!(out.contains(PROCEDURE_ROUTE_PREFIX), "{out}");
+        assert!(out.contains(&route_prefix()), "{out}");
     }
 
     #[test]

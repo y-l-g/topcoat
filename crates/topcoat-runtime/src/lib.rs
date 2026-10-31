@@ -42,4 +42,7 @@ pub use signal::*;
 pub use surrogate::*;
 use topcoat_asset::{Asset, asset};
 
+/// The path prefix of the shard and procedure endpoints that have no explicit path.
+pub const ROUTE_PREFIX: &str = "/_topcoat/runtime";
+
 pub const SCRIPT: Asset = asset!("browser/dist/index.js", rename: "topcoat");
